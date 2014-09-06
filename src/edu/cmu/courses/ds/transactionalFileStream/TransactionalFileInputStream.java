@@ -32,11 +32,11 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 
     if (mFlag) {
       in = new FileInputStream(inFile);
-      
+
       for (int i = 0; i < this.off; i++) {
         c = in.read();
       }
-      
+
       mFlag = false;
     }
 
@@ -52,5 +52,10 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
   @Override
   public void close() throws IOException {
     in.close();
+  }
+  
+  @Override
+  public String toString() {
+    return inFile;
   }
 }

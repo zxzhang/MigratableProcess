@@ -59,4 +59,9 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
   public void close() throws IOException {
     out.close();
   }
+  
+  @Override
+  public String toString() {
+    return outFile;
+  }
 }

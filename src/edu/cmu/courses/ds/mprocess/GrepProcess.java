@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.Thread;
 import java.lang.InterruptedException;
 
+import edu.cmu.courses.ds.launchingProcesses.ProcessManager;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileInputStream;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileOutputStream;
 
@@ -23,12 +24,16 @@ public class GrepProcess implements MigratableProcess {
   private String query;
 
   private volatile boolean suspending;
+  
+  private long id;
 
   public GrepProcess(String args[]) throws Exception {
     if (args.length != 3) {
       System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
       throw new Exception("Invalid Arguments");
     }
+    
+    this.id = ProcessManager.getInstance().generateID();
 
     query = args[0];
     inFile = new TransactionalFileInputStream(args[1]);
@@ -71,9 +76,10 @@ public class GrepProcess implements MigratableProcess {
       // End of File
     } catch (IOException e) {
       System.out.println("GrepProcess: Error: " + e);
+    } finally { 
+      ProcessManager.getInstance().finishProcess(this);
+      suspending = false;
     }
-
-    suspending = false;
   }
 
   @Override
@@ -82,15 +88,22 @@ public class GrepProcess implements MigratableProcess {
     outFile.setMigrated(true);
   }
 
-  /*
+  @Override
+  public long getId() {
+    return this.id;
+  }
+
+  @Override
+  public void resume() {
+    suspending = false;
+  }
+  
   @Override
   public String toString() {
     StringBuffer sb = new StringBuffer();
-    sb.append(this.getClass().getSimpleName());
-    sb.append("[" + id + "]: ");
-
+    sb.append("id[").append(id).append("] ").append(this.getClass().getSimpleName()).append(" ");
+    sb.append("<").append(query).append("> <").append(inFile.toString()).append("> <").append(outFile.toString()).append(">");
     return sb.toString();
   }
-  */
-
 }
+ 
