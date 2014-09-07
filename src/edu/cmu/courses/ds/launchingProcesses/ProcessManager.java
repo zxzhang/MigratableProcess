@@ -159,11 +159,13 @@ public class ProcessManager {
   private void doQuit() {
     if (receiver != null) {
       runnable.terminate();
+      /*
       try {
         receiver.join();
       } catch (InterruptedException e) {
         System.out.println(e.getMessage());
       }
+      */
     }
     System.exit(0);
   }

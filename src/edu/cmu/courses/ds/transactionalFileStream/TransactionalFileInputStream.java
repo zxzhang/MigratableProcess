@@ -1,8 +1,10 @@
 package edu.cmu.courses.ds.transactionalFileStream;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.io.Serializable;
 
 public class TransactionalFileInputStream extends InputStream implements Serializable {
@@ -17,26 +19,22 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 
   private boolean mFlag;
 
-  FileInputStream in = null;
+  private transient RandomAccessFile in = null;
 
   public TransactionalFileInputStream(String file) throws Exception {
     this.inFile = file;
     this.off = 0;
     this.mFlag = false;
-    this.in = new FileInputStream(file);
+    //this.in = new FileInputStream(file);
   }
 
   @Override
   public int read() throws IOException {
     int c = -1;
 
-    if (mFlag) {
-      in = new FileInputStream(inFile);
-
-      for (int i = 0; i < this.off; i++) {
-        c = in.read();
-      }
-
+    if (mFlag || in == null) {
+      in = new RandomAccessFile(new File(inFile), "r");
+      in.seek(off);
       mFlag = false;
     }
 

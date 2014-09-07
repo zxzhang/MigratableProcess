@@ -26,6 +26,10 @@ public class GrepProcess implements MigratableProcess {
   private volatile boolean suspending;
   
   private long id;
+  
+  PrintStream out = null;
+  
+  DataInputStream in = null;
 
   public GrepProcess(String args[]) throws Exception {
     if (args.length != 3) {
@@ -50,8 +54,8 @@ public class GrepProcess implements MigratableProcess {
   @SuppressWarnings("deprecation")
   @Override
   public void run() {
-    PrintStream out = new PrintStream(outFile);
-    DataInputStream in = new DataInputStream(inFile);
+    out = new PrintStream(outFile);
+    in = new DataInputStream(inFile);
 
     try {
       while (!suspending) {
@@ -71,12 +75,13 @@ public class GrepProcess implements MigratableProcess {
         } catch (InterruptedException e) {
           // ignore it
         }
+        
       }
     } catch (EOFException e) {
       // End of File
     } catch (IOException e) {
       System.out.println("GrepProcess: Error: " + e);
-    } finally { 
+    } finally {
       ProcessManager.getInstance().finishProcess(this);
       suspending = false;
     }
@@ -104,6 +109,16 @@ public class GrepProcess implements MigratableProcess {
     sb.append("id[").append(id).append("] ").append(this.getClass().getSimpleName()).append(" ");
     sb.append("<").append(query).append("> <").append(inFile.toString()).append("> <").append(outFile.toString()).append(">");
     return sb.toString();
+  }
+
+  @Override
+  public void closeIO() throws InterruptedException {
+    try {
+      this.in.close();
+      this.out.close();
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+    }
   }
 }
  
