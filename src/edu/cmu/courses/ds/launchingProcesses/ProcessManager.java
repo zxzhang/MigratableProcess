@@ -89,7 +89,9 @@ public class ProcessManager {
     try {
       socket = new Socket(host, processServer.port);
       p.suspend();
+      Thread.sleep(100);
       migrate(p, socket);
+      Thread.sleep(100);
       socket.close();
     } catch (InterruptedException e) {
       System.out.println(e.getMessage());
@@ -102,7 +104,7 @@ public class ProcessManager {
     try {
       ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
       DataInputStream in = new DataInputStream(socket.getInputStream());
-      
+
       out.writeObject(p);
       
       boolean mFlag = in.readBoolean();

@@ -29,6 +29,7 @@ public class clientThread implements Runnable {
         p = (MigratableProcess) obj;
         p.migrated();
         out.writeBoolean(true);
+        Thread.sleep(100);
         ProcessManager.getInstance().startProcess(p);
       } else {
         out.writeBoolean(false);
@@ -41,6 +42,8 @@ public class clientThread implements Runnable {
     } catch (IOException e) {
       System.out.println(e.getMessage());
     } catch (ClassNotFoundException e) {
+      System.out.println(e.getMessage());
+    } catch (InterruptedException e) {
       System.out.println(e.getMessage());
     }
   }

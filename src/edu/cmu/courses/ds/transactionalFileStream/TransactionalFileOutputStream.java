@@ -27,12 +27,13 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
     this.off = 0;
     this.mFlag = false;
     this.outFile = new File(file);
+    this.out = new RandomAccessFile(outFile, "rw");
   }
 
   @Override
   public void write(int b) throws IOException {
 
-    if (mFlag || out == null) {
+    if (mFlag) {
       out = new RandomAccessFile(outFile, "rw");
       out.seek(off);
       mFlag = false;

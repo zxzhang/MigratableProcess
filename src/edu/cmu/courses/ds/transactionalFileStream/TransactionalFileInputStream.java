@@ -27,13 +27,14 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
     this.off = 0;
     this.mFlag = false;
     this.inFile = new File(file);
+    this.in = new RandomAccessFile(inFile, "r");
   }
 
   @Override
   public int read() throws IOException {
     int c = -1;
 
-    if (mFlag || in == null) {
+    if (mFlag) {
       in = new RandomAccessFile(inFile, "r");
       in.seek(off);
       mFlag = false;
