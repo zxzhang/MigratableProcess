@@ -33,7 +33,7 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
   public void write(int b) throws IOException {
 
     if (mFlag || out == null) {
-      out = new RandomAccessFile(new File(outFile), "wr");
+      out = new RandomAccessFile(new File(outFile), "rw");
       out.seek(off);
       mFlag = false;
     }
