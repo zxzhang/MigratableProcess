@@ -1,8 +1,6 @@
 package edu.cmu.courses.ds.transactionalFileStream;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
@@ -14,7 +12,9 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
    */
   private static final long serialVersionUID = 1L;
 
-  private String outFile;
+  private String outFilePath;
+  
+  private File outFile;
 
   private long off;
 
@@ -23,17 +23,17 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
   private transient RandomAccessFile out = null;
 
   public TransactionalFileOutputStream(String file, boolean append) throws Exception {
-    this.outFile = file;
+    this.outFilePath = file;
     this.off = 0;
     this.mFlag = false;
-    //this.out = new FileOutputStream(outFile, append);
+    this.outFile = new File(file);
   }
 
   @Override
   public void write(int b) throws IOException {
 
     if (mFlag || out == null) {
-      out = new RandomAccessFile(new File(outFile), "rw");
+      out = new RandomAccessFile(outFile, "rw");
       out.seek(off);
       mFlag = false;
     }
@@ -53,6 +53,6 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
   
   @Override
   public String toString() {
-    return outFile;
+    return outFilePath;
   }
 }

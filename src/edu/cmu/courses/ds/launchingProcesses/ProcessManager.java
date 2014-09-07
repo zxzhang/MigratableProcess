@@ -217,7 +217,7 @@ public class ProcessManager {
   public void finishProcess(MigratableProcess p) {
     pQueue.remove(p);
   }
-  
+
   public long generateID() {
     return idCount.incrementAndGet();
   }
