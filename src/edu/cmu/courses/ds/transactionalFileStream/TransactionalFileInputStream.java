@@ -13,7 +13,7 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 
   private String inFile;
 
-  private long off;
+  private int off;
 
   private boolean mFlag;
 

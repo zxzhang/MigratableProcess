@@ -14,7 +14,7 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 
   private String outFilePath;
 
-  private long off;
+  private int off;
 
   private boolean mFlag;
 
@@ -33,17 +33,16 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
   public void write(int b) throws IOException {
 
     if (mFlag) {
-      out = new FileOutputStream(outFilePath);
       in = new FileInputStream(outFilePath);
-
-      int c = -1;
-
-      for (int i = 0; i < this.off; i++) {
-        c = in.read();
-        out.write(c);
-      }
-      
+      byte[] buff = new byte[this.off];
+      in.read(buff, 0, this.off);
       in.close();
+      
+      out = new FileOutputStream(outFilePath);
+      for (int i = 0; i < this.off; i++) {
+        out.write((int) buff[i]);
+      }
+
       mFlag = false;
     }
 
