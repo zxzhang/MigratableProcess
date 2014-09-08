@@ -31,7 +31,6 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 
   @Override
   public void write(int b) throws IOException {
-
     if (mFlag) {
       in = new FileInputStream(outFilePath);
       byte[] buff = new byte[this.off];
