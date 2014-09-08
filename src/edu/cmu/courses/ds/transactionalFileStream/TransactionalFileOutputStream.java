@@ -1,10 +1,9 @@
 package edu.cmu.courses.ds.transactionalFileStream;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.io.Serializable;
 
 public class TransactionalFileOutputStream extends OutputStream implements Serializable {
@@ -21,6 +20,8 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 
   private transient FileOutputStream out = null;
 
+  private transient FileInputStream in = null;
+
   public TransactionalFileOutputStream(String file, boolean append) throws Exception {
     this.outFilePath = file;
     this.off = 0;
@@ -33,7 +34,16 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 
     if (mFlag) {
       out = new FileOutputStream(outFilePath);
-      out.write(b);
+      in = new FileInputStream(outFilePath);
+
+      int c = -1;
+
+      for (int i = 0; i < this.off; i++) {
+        c = in.read();
+        out.write(c);
+      }
+      
+      in.close();
       mFlag = false;
     }
 
