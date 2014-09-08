@@ -81,7 +81,7 @@ public class GrepProcess implements MigratableProcess {
       ProcessManager.getInstance().finishProcess(this);
       suspending = false;
     }
-    
+
     try {
       in.close();
       out.close();
@@ -93,8 +93,8 @@ public class GrepProcess implements MigratableProcess {
 
   @Override
   public void migrated() {
-    inFile.setMigrated(true);
-    outFile.setMigrated(true);
+    inFile.setMigrated();
+    outFile.setMigrated();
   }
 
   @Override
@@ -114,6 +114,20 @@ public class GrepProcess implements MigratableProcess {
     sb.append("<").append(query).append("> <").append(inFile.toString()).append("> <")
             .append(outFile.toString()).append(">");
     return sb.toString();
+  }
+
+  @Override
+  public void closeIO() {
+    try {
+      inFile.close();
+      outFile.close();
+      suspend();
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+    } catch (InterruptedException e) {
+      System.out.println(e.getMessage());
+    }
+    
   }
 
 }

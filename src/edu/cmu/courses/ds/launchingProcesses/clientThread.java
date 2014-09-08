@@ -10,7 +10,7 @@ import edu.cmu.courses.ds.mprocess.MigratableProcess;
 public class clientThread implements Runnable {
 
   Socket clientSocket = null;
-  
+
   MigratableProcess p = null;
 
   clientThread(Socket clientSocket) {
@@ -22,28 +22,26 @@ public class clientThread implements Runnable {
     try {
       ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
       DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
-      
+
       Object obj = in.readObject();
-      
+
       if (obj instanceof MigratableProcess) {
         p = (MigratableProcess) obj;
         p.migrated();
         out.writeBoolean(true);
-        Thread.sleep(100);
+        //Thread.sleep(100);
         ProcessManager.getInstance().startProcess(p);
       } else {
         out.writeBoolean(false);
       }
-      
+
       in.close();
       out.close();
       clientSocket.close();
-      
+
     } catch (IOException e) {
       System.out.println(e.getMessage());
     } catch (ClassNotFoundException e) {
-      System.out.println(e.getMessage());
-    } catch (InterruptedException e) {
       System.out.println(e.getMessage());
     }
   }

@@ -13,7 +13,7 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
   private static final long serialVersionUID = 1L;
 
   private String outFilePath;
-  
+
   private File outFile;
 
   private long off;
@@ -43,15 +43,15 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
     this.off++;
   }
 
-  public void setMigrated(boolean mFlag) {
-    this.mFlag = mFlag;
+  public void setMigrated() {
+    this.mFlag = true;
   }
 
   @Override
   public void close() throws IOException {
     out.close();
   }
-  
+
   @Override
   public String toString() {
     return outFilePath;

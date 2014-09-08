@@ -17,18 +17,20 @@ import edu.cmu.courses.ds.mprocess.MigratableProcess;
 public class ProcessManager {
 
   private static ProcessManager singleton;
-  
+
   private Thread receiver = null;
+
   private processServer runnable = null;
-  
+
   private AtomicLong idCount;
+
   private Queue<MigratableProcess> pQueue;
 
   private ProcessManager() {
     idCount = new AtomicLong(0);
     pQueue = new LinkedList<MigratableProcess>();
   }
-  
+
   private void processCommand(String command) throws Exception {
     if (command == null) {
       return;
@@ -75,26 +77,22 @@ public class ProcessManager {
     if (args.length < 3) {
       return;
     }
-    
+
     long id = Long.parseLong(args[1]);
     String host = args[2];
     MigratableProcess p = getProcessbyID(id);
-    
+
     if (p == null) {
       System.out.println("wrong process id...");
       return;
     }
-    
+
     Socket socket = null;
     try {
       socket = new Socket(host, processServer.port);
-      p.suspend();
-      Thread.sleep(100);
+      p.closeIO();
       migrate(p, socket);
-      Thread.sleep(100);
       socket.close();
-    } catch (InterruptedException e) {
-      System.out.println(e.getMessage());
     } catch (IOException e) {
       System.out.println(e.getMessage());
     }
@@ -106,17 +104,17 @@ public class ProcessManager {
       DataInputStream in = new DataInputStream(socket.getInputStream());
 
       out.writeObject(p);
-      
+
       boolean mFlag = in.readBoolean();
       if (!mFlag) {
         p.resume();
         p.migrated();
         startProcess(p);
       }
-      
+
       in.close();
       out.close();
-      
+
       socket.close();
     } catch (IOException e) {
       System.out.println(e.getMessage());
@@ -138,15 +136,15 @@ public class ProcessManager {
     if (args.length < 4) {
       return;
     }
-    
+
     String pName = args[1];
     MigratableProcess process = null;
-        
+
     String[] pArgs = new String[args.length - 2];
     for (int i = 0; i < (args.length - 2); i++) {
       pArgs[i] = args[i + 2];
     }
-    
+
     switch (pName) {
       case "GrepProcess":
         process = new GrepProcess(pArgs);
@@ -154,7 +152,7 @@ public class ProcessManager {
       default:
         return;
     }
-    
+
     startProcess(process);
   }
 
@@ -162,12 +160,9 @@ public class ProcessManager {
     if (receiver != null) {
       runnable.terminate();
       /*
-      try {
-        receiver.join();
-      } catch (InterruptedException e) {
-        System.out.println(e.getMessage());
-      }
-      */
+       * try { receiver.join(); } catch (InterruptedException e) {
+       * System.out.println(e.getMessage()); }
+       */
     }
     System.exit(0);
   }
@@ -191,7 +186,7 @@ public class ProcessManager {
       processCommand(command);
     }
   }
-  
+
   public void startServer() {
     runnable = new processServer();
     receiver = new Thread(runnable);
@@ -215,7 +210,7 @@ public class ProcessManager {
     thread.start();
     pQueue.add(p);
   }
-  
+
   public void finishProcess(MigratableProcess p) {
     pQueue.remove(p);
   }

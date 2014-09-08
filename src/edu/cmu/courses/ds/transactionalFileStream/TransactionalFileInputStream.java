@@ -13,7 +13,7 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
   private static final long serialVersionUID = 1L;
 
   private String inFilePath;
-  
+
   private File inFile;
 
   private long off;
@@ -45,15 +45,15 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
     return c;
   }
 
-  public void setMigrated(boolean mFlag) {
-    this.mFlag = mFlag;
+  public void setMigrated() {
+    this.mFlag = true;
   }
 
   @Override
   public void close() throws IOException {
     in.close();
   }
-  
+
   @Override
   public String toString() {
     return inFilePath;
