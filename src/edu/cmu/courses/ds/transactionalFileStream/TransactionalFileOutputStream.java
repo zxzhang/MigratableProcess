@@ -1,6 +1,7 @@
 package edu.cmu.courses.ds.transactionalFileStream;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
@@ -14,28 +15,25 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 
   private String outFilePath;
 
-  private File outFile;
-
   private long off;
 
   private boolean mFlag;
 
-  private transient RandomAccessFile out = null;
+  private transient FileOutputStream out = null;
 
   public TransactionalFileOutputStream(String file, boolean append) throws Exception {
     this.outFilePath = file;
     this.off = 0;
     this.mFlag = false;
-    this.outFile = new File(file);
-    this.out = new RandomAccessFile(outFile, "rw");
+    this.out = new FileOutputStream(outFilePath);
   }
 
   @Override
   public void write(int b) throws IOException {
 
     if (mFlag) {
-      out = new RandomAccessFile(outFile, "rw");
-      out.seek(off);
+      out = new FileOutputStream(outFilePath);
+      out.write(b);
       mFlag = false;
     }
 
