@@ -20,7 +20,7 @@ public class ProcessManager {
 
 	private Thread receiver = null;
 
-	private processServer runnable = null;
+	private ProcessServer runnable = null;
 
 	private AtomicLong idCount;
 
@@ -55,16 +55,14 @@ public class ProcessManager {
 			doLs(args);
 			break;
 		default:
-			System.out.println("unknown command! Please input again...");
+			System.out.println("Unknown command! Please input again...");
 			break;
 		}
 	}
 
 	private void doLs(String[] args) {
-		if (pQueue.isEmpty()) {
-			System.out.println("None...");
-		} else {
-			System.out.println("running processes...");
+		if (!pQueue.isEmpty()) {
+			System.out.println("Running processes:");
 			Iterator<MigratableProcess> iter = pQueue.iterator();
 			while (iter.hasNext()) {
 				MigratableProcess p = iter.next();
@@ -83,13 +81,13 @@ public class ProcessManager {
 		MigratableProcess p = getProcessbyID(id);
 
 		if (p == null) {
-			System.out.println("wrong process id...");
+			System.out.println("Wrong process id. Please input the right process id.");
 			return;
 		}
 
 		Socket socket = null;
 		try {
-			socket = new Socket(host, processServer.port);
+			socket = new Socket(host, ProcessServer.port);
 			p.closeIO();
 			migrate(p, socket);
 			socket.close();
@@ -108,7 +106,6 @@ public class ProcessManager {
 
 			boolean mFlag = in.readBoolean();
 			if (!mFlag) {
-				p.resume();
 				p.migrated();
 				startProcess(p);
 			}
@@ -134,7 +131,7 @@ public class ProcessManager {
 	}
 
 	private void doRun(String[] args) throws Exception {
-		if (args.length < 4) {
+		if (args.length < 2) {
 			return;
 		}
 
@@ -148,9 +145,14 @@ public class ProcessManager {
 
 		switch (pName) {
 		case "GrepProcess":
+		  if (pArgs.length != 3) {
+		    System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
+		    return;
+		  }
 			process = new GrepProcess(pArgs);
 			break;
 		default:
+		  System.out.println("Please input the right process name.");
 			return;
 		}
 
@@ -160,10 +162,6 @@ public class ProcessManager {
 	private void doQuit() {
 		if (receiver != null) {
 			runnable.terminate();
-			/*
-			 * try { receiver.join(); } catch (InterruptedException e) {
-			 * System.out.println(e.getMessage()); }
-			 */
 		}
 		System.exit(0);
 	}
@@ -180,7 +178,7 @@ public class ProcessManager {
 			try {
 				command = br.readLine();
 			} catch (IOException e) {
-				System.err.println(e.getMessage());
+				System.out.println(e.getMessage());
 				System.exit(1);
 			}
 
@@ -189,7 +187,7 @@ public class ProcessManager {
 	}
 
 	public void startServer() {
-		runnable = new processServer();
+		runnable = new ProcessServer();
 		receiver = new Thread(runnable);
 		receiver.start();
 	}

@@ -7,13 +7,13 @@ import java.net.Socket;
 
 import edu.cmu.courses.ds.mprocess.MigratableProcess;
 
-public class clientThread implements Runnable {
+public class ClientThread implements Runnable {
 
   Socket clientSocket = null;
 
   MigratableProcess p = null;
 
-  clientThread(Socket clientSocket) {
+  ClientThread(Socket clientSocket) {
     this.clientSocket = clientSocket;
   }
 
@@ -29,7 +29,6 @@ public class clientThread implements Runnable {
         p = (MigratableProcess) obj;
         p.migrated();
         out.writeBoolean(true);
-        //Thread.sleep(100);
         ProcessManager.getInstance().startProcess(p);
       } else {
         out.writeBoolean(false);

@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class processServer implements Runnable {
+public class ProcessServer implements Runnable {
 
   public static final int port = 15640;
 
@@ -38,7 +38,7 @@ public class processServer implements Runnable {
         System.out.println(e.getMessage());
         System.exit(1);
       }
-      clientThread = new Thread(new clientThread(clientSocket));
+      clientThread = new Thread(new ClientThread(clientSocket));
       clientThread.start();
     }
   }

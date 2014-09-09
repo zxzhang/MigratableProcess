@@ -23,7 +23,7 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
     this.inFile = file;
     this.off = 0;
     this.mFlag = false;
-    this.in = new FileInputStream(inFile);
+    this.in = new FileInputStream(file);
   }
 
   @Override
@@ -32,11 +32,10 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 
     if (mFlag) {
       in = new FileInputStream(inFile);
-      
       for (int i = 0; i < this.off; i++) {
-    	  c = in.read();
+        c = in.read();
       }
-      
+
       mFlag = false;
     }
 

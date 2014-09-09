@@ -26,7 +26,7 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
     this.outFilePath = file;
     this.off = 0;
     this.mFlag = false;
-    this.out = new FileOutputStream(outFilePath);
+    this.out = new FileOutputStream(file);
   }
 
   @Override
@@ -36,7 +36,7 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
       byte[] buff = new byte[this.off];
       in.read(buff, 0, this.off);
       in.close();
-      
+
       out = new FileOutputStream(outFilePath);
       for (int i = 0; i < this.off; i++) {
         out.write((int) buff[i]);

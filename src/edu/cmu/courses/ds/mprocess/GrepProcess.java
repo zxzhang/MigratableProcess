@@ -102,10 +102,12 @@ public class GrepProcess implements MigratableProcess {
     return this.id;
   }
 
+  /*
   @Override
   public void resume() {
     suspending = false;
   }
+  */
 
   @Override
   public String toString() {
@@ -127,7 +129,6 @@ public class GrepProcess implements MigratableProcess {
     } catch (InterruptedException e) {
       System.out.println(e.getMessage());
     }
-    
   }
 
 }
