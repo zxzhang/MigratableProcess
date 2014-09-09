@@ -27,7 +27,6 @@ public class ClientThread implements Runnable {
 
       if (obj instanceof MigratableProcess) {
         p = (MigratableProcess) obj;
-        p.migrated();
         out.writeBoolean(true);
         ProcessManager.getInstance().startProcess(p);
       } else {

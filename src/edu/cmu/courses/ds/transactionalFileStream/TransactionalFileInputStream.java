@@ -46,6 +46,11 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 
   public void setMigrated() {
     this.mFlag = true;
+    try {
+      this.close();
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   @Override

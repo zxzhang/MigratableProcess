@@ -11,7 +11,7 @@ import edu.cmu.courses.ds.launchingProcesses.ProcessManager;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileInputStream;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileOutputStream;
 
-public class GrepProcess implements MigratableProcess {
+public class GrepProcess extends BaseMigratableProcess {
   /**
    * 
    */
@@ -40,13 +40,6 @@ public class GrepProcess implements MigratableProcess {
     outFile = new TransactionalFileOutputStream(args[2], false);
   }
 
-  @Override
-  public void suspend() throws InterruptedException {
-    suspending = true;
-    while (suspending)
-      ;
-  }
-
   @SuppressWarnings("deprecation")
   @Override
   public void run() {
@@ -56,7 +49,7 @@ public class GrepProcess implements MigratableProcess {
     try {
       while (!suspending) {
         String line = in.readLine();
-        
+
         if (line == null)
           break;
 
@@ -92,24 +85,6 @@ public class GrepProcess implements MigratableProcess {
   }
 
   @Override
-  public void migrated() {
-    inFile.setMigrated();
-    outFile.setMigrated();
-  }
-
-  @Override
-  public long getId() {
-    return this.id;
-  }
-
-  /*
-  @Override
-  public void resume() {
-    suspending = false;
-  }
-  */
-
-  @Override
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append("[id: ").append(id).append("] ").append(this.getClass().getSimpleName()).append(" ");
@@ -117,18 +92,4 @@ public class GrepProcess implements MigratableProcess {
             .append(outFile.toString()).append(">");
     return sb.toString();
   }
-
-  @Override
-  public void closeIO() {
-    try {
-      inFile.close();
-      outFile.close();
-      suspend();
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
-    } catch (InterruptedException e) {
-      System.out.println(e.getMessage());
-    }
-  }
-
 }

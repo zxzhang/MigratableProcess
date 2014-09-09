@@ -88,10 +88,11 @@ public class ProcessManager {
 		Socket socket = null;
 		try {
 			socket = new Socket(host, ProcessServer.port);
-			p.closeIO();
+			p.suspend();
+			p.migrated();
 			migrate(p, socket);
 			socket.close();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -106,7 +107,6 @@ public class ProcessManager {
 
 			boolean mFlag = in.readBoolean();
 			if (!mFlag) {
-				p.migrated();
 				startProcess(p);
 			}
 

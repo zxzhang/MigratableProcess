@@ -11,7 +11,7 @@ import edu.cmu.courses.ds.launchingProcesses.ProcessManager;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileInputStream;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileOutputStream;
 
-public class ReplaceProcess implements MigratableProcess {
+public class ReplaceProcess extends BaseMigratableProcess {
   /**
    * 
    */
@@ -43,13 +43,6 @@ public class ReplaceProcess implements MigratableProcess {
 
     inFile = new TransactionalFileInputStream(args[2]);
     outFile = new TransactionalFileOutputStream(args[3], false);
-  }
-
-  @Override
-  public void suspend() throws InterruptedException {
-    suspending = true;
-    while (suspending)
-      ;
   }
 
   @SuppressWarnings("deprecation")
@@ -97,21 +90,6 @@ public class ReplaceProcess implements MigratableProcess {
   }
 
   @Override
-  public void migrated() {
-    inFile.setMigrated();
-    outFile.setMigrated();
-  }
-
-  @Override
-  public long getId() {
-    return this.id;
-  }
-
-  /*
-   * @Override public void resume() { suspending = false; }
-   */
-
-  @Override
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append("[id: ").append(id).append("] ").append(this.getClass().getSimpleName()).append(" ");
@@ -119,18 +97,4 @@ public class ReplaceProcess implements MigratableProcess {
             .append(inFile.toString()).append("> <").append(outFile.toString()).append(">");
     return sb.toString();
   }
-
-  @Override
-  public void closeIO() {
-    try {
-      inFile.close();
-      outFile.close();
-      suspend();
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
-    } catch (InterruptedException e) {
-      System.out.println(e.getMessage());
-    }
-  }
-
 }
