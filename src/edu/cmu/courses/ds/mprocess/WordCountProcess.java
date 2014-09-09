@@ -11,7 +11,7 @@ import edu.cmu.courses.ds.launchingProcesses.ProcessManager;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileInputStream;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileOutputStream;
 
-public class WordCountProcess extends BaseMigratableProcess {
+public class WordCountProcess implements MigratableProcess {
   /**
    * 
    */
@@ -84,5 +84,23 @@ public class WordCountProcess extends BaseMigratableProcess {
     sb.append("[id: ").append(id).append("] ").append(this.getClass().getSimpleName()).append(" ");
     sb.append("<").append(inFile.toString()).append("> <").append(outFile.toString()).append(">");
     return sb.toString();
+  }
+
+  @Override
+  public void suspend() throws InterruptedException {
+    suspending = true;
+    while (suspending)
+      ;
+  }
+
+  @Override
+  public void migrated() {
+    inFile.setMigrated();
+    outFile.setMigrated();
+  }
+
+  @Override
+  public long getId() {
+    return this.id;
   }
 }
