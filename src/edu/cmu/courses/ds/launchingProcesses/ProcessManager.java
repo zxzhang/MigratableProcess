@@ -87,6 +87,9 @@ public class ProcessManager {
           System.out.println("Not master machine...");
         }
         break;
+      case "help":
+        doHelp();
+        break;
       default:
         System.out.println("Unknown command! Please input again...");
         break;
@@ -108,7 +111,7 @@ public class ProcessManager {
 
   private void doLs() {
     if (!pQueue.isEmpty()) {
-      System.out.println("Running processes:");
+      // System.out.println("Running processes:");
       Iterator<MigratableProcess> iter = pQueue.iterator();
       while (iter.hasNext()) {
         MigratableProcess p = iter.next();
@@ -199,7 +202,9 @@ public class ProcessManager {
      * System.out.println("Please input the right process name."); return; }
      */
 
-    startProcess(pName, pArgs);
+    if (startProcess(pName, pArgs) == false) {
+      System.out.println("Please input the right process name.");
+    }
   }
 
   private boolean startProcess(String pName, String[] pArgs) throws InstantiationException,
@@ -229,16 +234,32 @@ public class ProcessManager {
   }
 
   private void doQuit() {
+    if (isMaster() == false) {
+      ProcessManager.getInstance().sendMaster("", "quit");
+    }
     if (receiver != null) {
       runnable.terminate();
     }
-    ProcessManager.getInstance().sendMaster("", "quit");
     System.exit(0);
+  }
+  
+  private void doHelp() {
+    System.out.println("help : Print help information. Describe all the commands.");
+    System.out.println("des  : Display all the machines with all running processes (ID).");
+    System.out.println("ls   : Show all the running processes (ID) in this machine.");
+    System.out.println("mig <processID> <hostname> : Migrage the process with <processID> to another machine(hostname).");
+    System.out.println("quit : Quit this machine.");
+    System.out.println("run <processName> <args> : Run a process in the machine.");
+    System.out.println("     e.g. run GrepProcess <queryString> <inputFile> <outputFile>");
+    System.out.println("     e.g. run ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
+    System.out.println("     e.g. run WordCountProcess <inputFile> <outputFile>");
   }
 
   public void startTinyShell() throws Exception {
-    System.out.println("15640 project1! ...");
+    System.out.println("15640 project-1 ...");
 
+    doHelp();
+    
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     while (true) {

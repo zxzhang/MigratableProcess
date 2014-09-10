@@ -7,7 +7,7 @@ import java.net.SocketException;
 
 public class ProcessServer implements Runnable {
 
-  public static final int port = 15640;
+  public static final int port = 12323;
 
   private volatile boolean running = false;
 
@@ -45,5 +45,6 @@ public class ProcessServer implements Runnable {
 
   public void terminate() {
     running = false;
+    System.exit(0);
   }
 }

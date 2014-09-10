@@ -53,7 +53,7 @@ public class WordCountProcess implements MigratableProcess {
         line = line.trim();
 
         String[] words = line.split("\\s+");
-        out.print(words.length + '\t' + line);
+        out.println(words.length);
 
         try {
           Thread.sleep(100);
