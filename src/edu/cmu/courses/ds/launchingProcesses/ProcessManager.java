@@ -216,6 +216,7 @@ public class ProcessManager {
     if (receiver != null) {
       runnable.terminate();
     }
+    ProcessManager.getInstance().sendMaster("", "quit");
     System.exit(0);
   }
 
@@ -318,6 +319,12 @@ public class ProcessManager {
   }
 
   public void processSlaves(String[] args) {
+    if (args[1].equals("launch")) {
+      SlaveManager slave = new SlaveManager(args[0]);
+      sQueue.add(slave);
+      return;
+    }
+
     Iterator<SlaveManager> iter = sQueue.iterator();
     while (iter.hasNext()) {
       SlaveManager s = iter.next();
@@ -328,9 +335,16 @@ public class ProcessManager {
         } else if (args[1].equals("remove")) {
           s.removeProcess(args[2]);
           return;
+        } else if (args[1].equals("quit")) {
+          sQueue.remove(s);
+          return;
+        } else {
+          System.out.println("Wrong mess for master...");
+          return;
         }
       }
     }
+
     SlaveManager slave = new SlaveManager(args[0]);
     if (args[1].equals("start")) {
       slave.addProcess(args[2]);
@@ -338,6 +352,7 @@ public class ProcessManager {
       slave.removeProcess(args[2]);
     }
     sQueue.add(slave);
+
   }
 
   public static void main(String args[]) throws Exception {
