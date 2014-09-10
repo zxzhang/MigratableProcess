@@ -242,24 +242,28 @@ public class ProcessManager {
     }
     System.exit(0);
   }
-  
+
   private void doHelp() {
-    System.out.println("help : Print help information. Describe all the commands.");
-    System.out.println("des  : Display all the machines with all running processes (ID).");
-    System.out.println("ls   : Show all the running processes (ID) in this machine.");
+    System.out
+            .println("Run master node: java -classpath ./src:./jar/reflections-0.9.9-RC1-uberjar.jar:./jar/com.google.common_1.0.0.201004262004.jar:./jar/javassist-3.8.0.GA.jar edu.cmu.courses.ds.launchingProcesses.ProcessManager master");
+    System.out
+            .println("Run slave node: java -classpath ./src:./jar/reflections-0.9.9-RC1-uberjar.jar:./jar/com.google.common_1.0.0.201004262004.jar:./jar/javassist-3.8.0.GA.jar edu.cmu.courses.ds.launchingProcesses.ProcessManager slave <master's hostname>\n");
+    System.out.println("help                       : Print help information. Describe all the commands.");
+    System.out.println("des                        : Display all the machines with all running processes (ID).");
+    System.out.println("ls                         : Show all the running processes (ID) in this machine.");
     System.out.println("mig <processID> <hostname> : Migrage the process with <processID> to another machine(hostname).");
-    System.out.println("quit : Quit this machine.");
-    System.out.println("run <processName> <args> : Run a process in the machine.");
-    System.out.println("     e.g. run GrepProcess <queryString> <inputFile> <outputFile>");
-    System.out.println("     e.g. run ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
-    System.out.println("     e.g. run WordCountProcess <inputFile> <outputFile>");
+    System.out.println("quit                       : Quit this machine.");
+    System.out.println("run <processName> <args>   : Run a process in the machine.");
+    System.out.println("           e.g. run GrepProcess <queryString> <inputFile> <outputFile>");
+    System.out.println("           e.g. run ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
+    System.out.println("           e.g. run WordCountProcess <inputFile> <outputFile>");
   }
 
   public void startTinyShell() throws Exception {
     System.out.println("15640 project-1 ...");
 
     doHelp();
-    
+
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     while (true) {
