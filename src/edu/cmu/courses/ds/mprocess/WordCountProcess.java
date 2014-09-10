@@ -33,8 +33,8 @@ public class WordCountProcess implements MigratableProcess {
 
     this.id = ProcessManager.getInstance().generateID();
 
-    inFile = new TransactionalFileInputStream(args[1]);
-    outFile = new TransactionalFileOutputStream(args[2], false);
+    inFile = new TransactionalFileInputStream(args[0]);
+    outFile = new TransactionalFileOutputStream(args[1], false);
   }
 
   @SuppressWarnings("deprecation")
@@ -45,10 +45,12 @@ public class WordCountProcess implements MigratableProcess {
 
     try {
       while (!suspending) {
-        String line = in.readLine().trim();
+        String line = in.readLine();
 
         if (line == null)
           break;
+        
+        line = line.trim();
 
         String[] words = line.split("\\s+");
         out.print(words.length + '\t' + line);

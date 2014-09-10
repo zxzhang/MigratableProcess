@@ -53,10 +53,12 @@ public class ReplaceProcess implements MigratableProcess {
 
     try {
       while (!suspending) {
-        String line = in.readLine().trim();
+        String line = in.readLine();
 
         if (line == null)
           break;
+        
+        line = line.trim();
 
         if (line.contains(regex)) {
           out.println(line.replaceAll(regex, replacement));

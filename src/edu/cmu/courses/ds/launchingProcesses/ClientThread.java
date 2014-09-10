@@ -29,6 +29,12 @@ public class ClientThread implements Runnable {
         p = (MigratableProcess) obj;
         out.writeBoolean(true);
         ProcessManager.getInstance().startProcess(p);
+      } else if (obj instanceof String) {
+        if (ProcessManager.getInstance().isMaster()) {
+          String str = new String((String) obj);
+          processString(str);
+        }
+        out.writeBoolean(true);
       } else {
         out.writeBoolean(false);
       }
@@ -42,6 +48,11 @@ public class ClientThread implements Runnable {
     } catch (ClassNotFoundException e) {
       System.out.println(e.getMessage());
     }
+  }
+
+  private void processString(String str) {
+    String[] args = str.split("\t");
+    ProcessManager.getInstance().processSlaves(args);
   }
 
 }
