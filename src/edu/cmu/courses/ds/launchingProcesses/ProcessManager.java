@@ -5,18 +5,19 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import edu.cmu.courses.ds.mprocess.GrepProcess;
+import org.reflections.Reflections;
 import edu.cmu.courses.ds.mprocess.MigratableProcess;
-import edu.cmu.courses.ds.mprocess.ReplaceProcess;
-import edu.cmu.courses.ds.mprocess.WordCountProcess;
 
 public class ProcessManager {
 
@@ -36,11 +37,15 @@ public class ProcessManager {
 
   private String masterHost = null;
 
+  private Set<Class<? extends MigratableProcess>> mProcesses = null;
+
   private ProcessManager() {
     idCount = new AtomicLong(0);
     pQueue = new LinkedList<MigratableProcess>();
     master = true;
     sQueue = new LinkedList<SlaveManager>();
+    Reflections reflections = new Reflections("edu.cmu.courses.ds.mprocess");
+    mProcesses = reflections.getSubTypesOf(MigratableProcess.class);
   }
 
   private ProcessManager(String masterHost) {
@@ -48,6 +53,8 @@ public class ProcessManager {
     pQueue = new LinkedList<MigratableProcess>();
     master = false;
     this.masterHost = masterHost;
+    Reflections reflections = new Reflections("edu.cmu.courses.ds.mprocess");
+    mProcesses = reflections.getSubTypesOf(MigratableProcess.class);
   }
 
   private void processCommand(String command) throws Exception {
@@ -174,42 +181,51 @@ public class ProcessManager {
     }
 
     String pName = args[1];
-    MigratableProcess process = null;
 
     String[] pArgs = new String[args.length - 2];
     for (int i = 0; i < (args.length - 2); i++) {
       pArgs[i] = args[i + 2];
     }
 
-    switch (pName) {
-      case "GrepProcess":
-        if (pArgs.length != 3) {
-          System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
-          return;
-        }
-        process = new GrepProcess(pArgs);
-        break;
-      case "WordCountProcess":
-        if (pArgs.length != 2) {
-          System.out.println("usage: WordCountProcess <inputFile> <outputFile>");
-          return;
-        }
-        process = new WordCountProcess(pArgs);
-        break;
-      case "ReplaceProcess":
-        if (pArgs.length != 4) {
-          System.out
-                  .println("usage: ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
-          return;
-        }
-        process = new ReplaceProcess(pArgs);
-        break;
-      default:
-        System.out.println("Please input the right process name.");
-        return;
-    }
+    /*
+     * switch (pName) { case "GrepProcess": if (pArgs.length != 3) {
+     * System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>"); return; }
+     * process = new GrepProcess(pArgs); break; case "WordCountProcess": if (pArgs.length != 2) {
+     * System.out.println("usage: WordCountProcess <inputFile> <outputFile>"); return; } process =
+     * new WordCountProcess(pArgs); break; case "ReplaceProcess": if (pArgs.length != 4) {
+     * System.out
+     * .println("usage: ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
+     * return; } process = new ReplaceProcess(pArgs); break; default:
+     * System.out.println("Please input the right process name."); return; }
+     */
 
-    startProcess(process);
+    startProcess(pName, pArgs);
+  }
+
+  private boolean startProcess(String pName, String[] pArgs) throws InstantiationException,
+          IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    Iterator<Class<? extends MigratableProcess>> iter = mProcesses.iterator();
+
+    while (iter.hasNext()) {
+      Class<? extends MigratableProcess> process = iter.next();
+
+      if (process.getSimpleName().equals(pName)) {
+        Constructor<?>[] ctors = process.getDeclaredConstructors();
+        Constructor<?> ctor = null;
+
+        for (int i = 0; i < ctors.length; i++) {
+          ctor = ctors[i];
+          if (ctor.getGenericParameterTypes().length != 0)
+            break;
+        }
+
+        MigratableProcess p = (MigratableProcess) ctor.newInstance((Object) pArgs);
+        startProcess(p);
+
+        return true;
+      }
+    }
+    return false;
   }
 
   private void doQuit() {
