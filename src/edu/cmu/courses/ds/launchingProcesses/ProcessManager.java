@@ -90,7 +90,7 @@ public class ProcessManager {
     System.out.println("--- Master ---");
     System.out.println("--- " + InetAddress.getLocalHost().getHostName() + " ---");
     doLs();
-    
+
     System.out.println("--- Slaves ---");
     Iterator<SlaveManager> iter = sQueue.iterator();
     while (iter.hasNext()) {
@@ -268,6 +268,13 @@ public class ProcessManager {
     }
   }
 
+  public void finishProcess(MigratableProcess p) {
+    pQueue.remove(p);
+    if (master == false) {
+      sendMaster(p.toString(), "remove");
+    }
+  }
+
   private void sendMaster(String p, String sr) {
     Socket socket = null;
     try {
@@ -302,19 +309,35 @@ public class ProcessManager {
     }
   }
 
-  public void finishProcess(MigratableProcess p) {
-    pQueue.remove(p);
-    if (master == false) {
-      sendMaster(p.toString(), "remove");
-    }
-  }
-
   public long generateID() {
     return idCount.incrementAndGet();
   }
 
   public boolean isMaster() {
     return this.master;
+  }
+
+  public void processSlaves(String[] args) {
+    Iterator<SlaveManager> iter = sQueue.iterator();
+    while (iter.hasNext()) {
+      SlaveManager s = iter.next();
+      if (s.isHost(args[0])) {
+        if (args[1].equals("start")) {
+          s.addProcess(args[2]);
+          return;
+        } else if (args[1].equals("remove")) {
+          s.removeProcess(args[2]);
+          return;
+        }
+      }
+    }
+    SlaveManager slave = new SlaveManager(args[0]);
+    if (args[1].equals("start")) {
+      slave.addProcess(args[2]);
+    } else if (args[1].equals("remove")) {
+      slave.removeProcess(args[2]);
+    }
+    sQueue.add(slave);
   }
 
   public static void main(String args[]) throws Exception {
@@ -345,26 +368,4 @@ public class ProcessManager {
     }
   }
 
-  public void processSlaves(String[] args) {
-    Iterator<SlaveManager> iter = sQueue.iterator();
-    while (iter.hasNext()) {
-      SlaveManager s = iter.next();
-      if (s.isHost(args[0])) {
-        if (args[1].equals("start")) {
-          s.addProcess(args[2]);
-          return;
-        } else if (args[1].equals("remove")) {
-          s.removeProcess(args[2]);
-          return;
-        }
-      }
-    }
-    SlaveManager slave = new SlaveManager(args[0]);
-    if (args[1].equals("start")) {
-      slave.addProcess(args[2]);
-    } else if (args[1].equals("remove")) {
-      slave.removeProcess(args[2]);
-    }
-    sQueue.add(slave);
-  }
 }

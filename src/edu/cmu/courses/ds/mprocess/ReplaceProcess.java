@@ -57,7 +57,7 @@ public class ReplaceProcess implements MigratableProcess {
 
         if (line == null)
           break;
-        
+
         line = line.trim();
 
         if (line.contains(regex)) {

@@ -49,7 +49,7 @@ public class WordCountProcess implements MigratableProcess {
 
         if (line == null)
           break;
-        
+
         line = line.trim();
 
         String[] words = line.split("\\s+");
