@@ -13,6 +13,10 @@ public class SlaveManager {
     this.host = new String(host);
     this.pQueue = new LinkedList<String>();
   }
+  
+  public String getHost() {
+    return this.host;
+  }
 
   public boolean isHost(String host) {
     return (this.host.equals(host));

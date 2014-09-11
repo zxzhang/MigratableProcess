@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.reflections.Reflections;
+
 import edu.cmu.courses.ds.mprocess.MigratableProcess;
 
 public class ProcessManager {
@@ -90,9 +91,46 @@ public class ProcessManager {
       case "help":
         doHelp();
         break;
+      case "test":
+        doTest();
+        break;
       default:
         System.out.println("Unknown command! Please input again...");
         break;
+    }
+  }
+
+  private void doTest() throws Exception {
+    String[] command = { "run GrepProcess 5 ./testCase/grepTest ./testCase/grepTest.out",
+        "run ReplaceProcess 0 32123 ./testCase/replaceTest ./testCase/replaceTest.out",
+        "run WordCountProcess ./testCase/wordTest ./testCase/wordTest.out" };
+
+    for (int i = 0; i < 3; i++) {
+      Thread.sleep(100);
+      System.out.println(command[i]);
+      processCommand(command[i]);
+    }
+
+    String h = null;
+    Iterator<SlaveManager> siter = sQueue.iterator();
+    if (siter.hasNext()) {
+      SlaveManager s = siter.next();
+      h = s.getHost();
+    } else {
+      System.out.println("Plean launch a slave...");
+      return;
+    }
+    
+    Thread.sleep(3000);
+    Iterator<MigratableProcess> piter = pQueue.iterator();
+    while (piter.hasNext()) {
+      Thread.sleep(2000);
+      MigratableProcess p = piter.next();
+      long id = p.getId();
+      StringBuffer mig = new StringBuffer();
+      mig.append("mig ").append(id).append(" ").append(h);
+      System.out.println(mig.toString());
+      processCommand(mig.toString());
     }
   }
 
@@ -248,15 +286,28 @@ public class ProcessManager {
             .println("Run master node: java -classpath ./src:./jar/reflections-0.9.9-RC1-uberjar.jar:./jar/com.google.common_1.0.0.201004262004.jar:./jar/javassist-3.8.0.GA.jar edu.cmu.courses.ds.launchingProcesses.ProcessManager master");
     System.out
             .println("Run slave node: java -classpath ./src:./jar/reflections-0.9.9-RC1-uberjar.jar:./jar/com.google.common_1.0.0.201004262004.jar:./jar/javassist-3.8.0.GA.jar edu.cmu.courses.ds.launchingProcesses.ProcessManager slave <master's hostname>\n");
-    System.out.println("help                       : Print help information. Describe all the commands.");
-    System.out.println("des                        : Display all the machines with all running processes (ID).");
-    System.out.println("ls                         : Show all the running processes (ID) in this machine.");
-    System.out.println("mig <processID> <hostname> : Migrage the process with <processID> to another machine(hostname).");
+    System.out
+            .println("help                       : Print help information. Describe all the commands.");
+    System.out
+            .println("des                        : Display all the machines with all running processes (ID).");
+    System.out
+            .println("ls                         : Show all the running processes (ID) in this machine.");
+    System.out
+            .println("mig <processID> <hostname> : Migrage the process with <processID> to another machine(hostname).");
     System.out.println("quit                       : Quit this machine.");
     System.out.println("run <processName> <args>   : Run a process in the machine.");
-    System.out.println("           e.g. run GrepProcess <queryString> <inputFile> <outputFile>");
-    System.out.println("           e.g. run ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
-    System.out.println("           e.g. run WordCountProcess <inputFile> <outputFile>");
+    System.out.println("         run GrepProcess <queryString> <inputFile> <outputFile>");
+    System.out
+            .println("         e.g. run GrepProcess 5 ./testCase/grepTest ./testCase/grepTest.out");
+    System.out
+            .println("         run ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
+    System.out
+            .println("         e.g. run ReplaceProcess 0 32123 ./testCase/replaceTest ./testCase/replaceTest.out");
+    System.out.println("         run WordCountProcess <inputFile> <outputFile>");
+    System.out
+            .println("         e.g. run WordCountProcess ./testCase/wordTest ./testCase/wordTest.out");
+    System.out
+    .println("test                       : Run the test case.");
   }
 
   public void startTinyShell() throws Exception {
