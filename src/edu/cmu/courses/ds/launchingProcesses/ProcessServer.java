@@ -5,6 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+/*
+ * open a socket and wait for messages from other machines.
+ */
 public class ProcessServer implements Runnable {
 
   public static final int port = 12323;

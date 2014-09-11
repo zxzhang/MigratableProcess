@@ -1,4 +1,4 @@
-MasterHost=unix1.andrew.cmu.edu
+MasterHost=ghc23.ghc.andrew.cmu.edu
 
 echo $MasterHost
 

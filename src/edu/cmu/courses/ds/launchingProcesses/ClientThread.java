@@ -7,6 +7,9 @@ import java.net.Socket;
 
 import edu.cmu.courses.ds.mprocess.MigratableProcess;
 
+/*
+ * This is a Thread to receive object from other machines.
+ */
 public class ClientThread implements Runnable {
 
   Socket clientSocket = null;
@@ -17,6 +20,9 @@ public class ClientThread implements Runnable {
     this.clientSocket = clientSocket;
   }
 
+  /*
+   * Receive an object from others and send true back.
+   */
   @Override
   public void run() {
     try {

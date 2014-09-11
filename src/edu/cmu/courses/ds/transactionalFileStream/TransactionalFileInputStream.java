@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class TransactionalFileInputStream extends InputStream implements Serializable {
   /**
-   * 
+   * implement TransactionalFileInputStream through FileInputStream
    */
   private static final long serialVersionUID = 1L;
 

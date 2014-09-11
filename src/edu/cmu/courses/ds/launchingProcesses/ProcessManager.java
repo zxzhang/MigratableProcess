@@ -20,6 +20,10 @@ import org.reflections.Reflections;
 
 import edu.cmu.courses.ds.mprocess.MigratableProcess;
 
+/*
+ * This is a process manager class. In this class, there are two options: master or slave.
+ * Slave need master's hostname to be launched. 
+ */
 public class ProcessManager {
 
   private static ProcessManager singleton;
@@ -58,6 +62,9 @@ public class ProcessManager {
     mProcesses = reflections.getSubTypesOf(MigratableProcess.class);
   }
 
+  /*
+   * Receive the command and go to each methods...
+   */
   private void processCommand(String command) throws Exception {
     if (command == null) {
       return;
@@ -92,7 +99,11 @@ public class ProcessManager {
         doHelp();
         break;
       case "test":
-        doTest();
+        if (isMaster()) {
+          doTest();
+        } else {
+          System.out.println("Not master machine...");
+        }
         break;
       default:
         System.out.println("Unknown command! Please input again...");
@@ -100,6 +111,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * test command method.
+   */
   private void doTest() throws Exception {
     String[] command = { "run GrepProcess 5 ./testCase/grepTest ./testCase/grepTest.out",
         "run ReplaceProcess 0 32123 ./testCase/replaceTest ./testCase/replaceTest.out",
@@ -107,6 +121,7 @@ public class ProcessManager {
 
     for (int i = 0; i < 3; i++) {
       Thread.sleep(100);
+      System.out.print("tsh> ");
       System.out.println(command[i]);
       processCommand(command[i]);
     }
@@ -120,20 +135,26 @@ public class ProcessManager {
       System.out.println("Plean launch a slave...");
       return;
     }
-    
+
     Thread.sleep(3000);
-    Iterator<MigratableProcess> piter = pQueue.iterator();
-    while (piter.hasNext()) {
-      Thread.sleep(2000);
-      MigratableProcess p = piter.next();
+    while (!pQueue.isEmpty()) {
+      MigratableProcess p = pQueue.peek();
       long id = p.getId();
       StringBuffer mig = new StringBuffer();
       mig.append("mig ").append(id).append(" ").append(h);
+      System.out.print("tsh> ");
       System.out.println(mig.toString());
       processCommand(mig.toString());
+      Thread.sleep(2000);
     }
+
+    System.out.println("tsh> des");
+    processCommand("des");
   }
 
+  /*
+   * describe command method...
+   */
   private void doDes(String[] args) throws UnknownHostException {
     System.out.println("--- Master ---");
     System.out.println("--- " + InetAddress.getLocalHost().getHostName() + " ---");
@@ -147,6 +168,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * list command method.
+   */
   private void doLs() {
     if (!pQueue.isEmpty()) {
       // System.out.println("Running processes:");
@@ -158,6 +182,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * migrate a process.
+   */
   private void doMig(String[] args) {
     if (args.length < 3) {
       return;
@@ -172,6 +199,7 @@ public class ProcessManager {
       return;
     }
 
+    // suspend a process and then set flag. Finally, send it to another machine.
     Socket socket = null;
     try {
       socket = new Socket(host, ProcessServer.port);
@@ -184,6 +212,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * send a process to another machine.
+   */
   private void migrate(MigratableProcess p, Socket socket) {
     try {
       ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -205,6 +236,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * input the process ID and return the process.
+   */
   private MigratableProcess getProcessbyID(long id) {
     Iterator<MigratableProcess> iter = pQueue.iterator();
     while (iter.hasNext()) {
@@ -216,6 +250,9 @@ public class ProcessManager {
     return null;
   }
 
+  /*
+   * run command method.
+   */
   private void doRun(String[] args) throws Exception {
     if (args.length < 2) {
       return;
@@ -228,23 +265,14 @@ public class ProcessManager {
       pArgs[i] = args[i + 2];
     }
 
-    /*
-     * switch (pName) { case "GrepProcess": if (pArgs.length != 3) {
-     * System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>"); return; }
-     * process = new GrepProcess(pArgs); break; case "WordCountProcess": if (pArgs.length != 2) {
-     * System.out.println("usage: WordCountProcess <inputFile> <outputFile>"); return; } process =
-     * new WordCountProcess(pArgs); break; case "ReplaceProcess": if (pArgs.length != 4) {
-     * System.out
-     * .println("usage: ReplaceProcess <regexString> <replacementString> <inputFile> <outputFile>");
-     * return; } process = new ReplaceProcess(pArgs); break; default:
-     * System.out.println("Please input the right process name."); return; }
-     */
-
     if (startProcess(pName, pArgs) == false) {
       System.out.println("Please input the right process name.");
     }
   }
 
+  /*
+   * find a process class and launch a process.
+   */
   private boolean startProcess(String pName, String[] pArgs) throws InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     Iterator<Class<? extends MigratableProcess>> iter = mProcesses.iterator();
@@ -271,6 +299,9 @@ public class ProcessManager {
     return false;
   }
 
+  /*
+   * quit command method.
+   */
   private void doQuit() {
     if (isMaster() == false) {
       ProcessManager.getInstance().sendMaster("", "quit");
@@ -281,6 +312,9 @@ public class ProcessManager {
     System.exit(0);
   }
 
+  /*
+   * help command method.
+   */
   private void doHelp() {
     System.out
             .println("Run master node: java -classpath ./src:./jar/reflections-0.9.9-RC1-uberjar.jar:./jar/com.google.common_1.0.0.201004262004.jar:./jar/javassist-3.8.0.GA.jar edu.cmu.courses.ds.launchingProcesses.ProcessManager master");
@@ -306,10 +340,12 @@ public class ProcessManager {
     System.out.println("         run WordCountProcess <inputFile> <outputFile>");
     System.out
             .println("         e.g. run WordCountProcess ./testCase/wordTest ./testCase/wordTest.out");
-    System.out
-    .println("test                       : Run the test case.");
+    System.out.println("test                       : Run the test case.");
   }
 
+  /*
+   * open the tiny shell to input command.
+   */
   public void startTinyShell() throws Exception {
     System.out.println("15640 project-1 ...");
 
@@ -332,12 +368,18 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * start a server to receive object.
+   */
   public void startServer() {
     runnable = new ProcessServer();
     receiver = new Thread(runnable);
     receiver.start();
   }
 
+  /*
+   * singleton
+   */
   synchronized static public ProcessManager getInstance() {
     if (singleton == null) {
       singleton = new ProcessManager();
@@ -352,6 +394,9 @@ public class ProcessManager {
     return singleton;
   }
 
+  /*
+   * input a process, add it into the process queue and start it.
+   */
   public void startProcess(MigratableProcess p) {
     Thread thread = new Thread(p);
     thread.start();
@@ -361,6 +406,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * remove a process from the process queue.
+   */
   public void finishProcess(MigratableProcess p) {
     pQueue.remove(p);
     if (master == false) {
@@ -368,6 +416,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * send master a message.
+   */
   private void sendMaster(String p, String sr) {
     Socket socket = null;
     try {
@@ -379,6 +430,9 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * send messages...
+   */
   private void sendMess(String p, Socket socket, String sr) {
     try {
       ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -402,14 +456,23 @@ public class ProcessManager {
     }
   }
 
+  /*
+   * generate a processID.
+   */
   public long generateID() {
     return idCount.incrementAndGet();
   }
 
+  /*
+   * is master machine?
+   */
   public boolean isMaster() {
     return this.master;
   }
 
+  /*
+   * receive a message from slaves, this method parse the message.
+   */
   public void processSlaves(String[] args) {
     if (args[1].equals("launch")) {
       SlaveManager slave = new SlaveManager(args[0]);
@@ -447,6 +510,9 @@ public class ProcessManager {
 
   }
 
+  /*
+   * main method. master or slave...
+   */
   public static void main(String args[]) throws Exception {
     if (args.length < 1) {
       System.out.println("Please input the argument...");
@@ -454,7 +520,7 @@ public class ProcessManager {
     switch (args[0]) {
       case "master":
         if (args.length != 1) {
-          System.out.println("wrong argument...");
+          System.out.println("master");
           break;
         }
         ProcessManager.getInstance().startServer();
@@ -462,7 +528,7 @@ public class ProcessManager {
         break;
       case "slave":
         if (args.length != 2) {
-          System.out.println("wrong argument...");
+          System.out.println("slave + <hostname>");
           break;
         }
         ProcessManager.getInstance(args[1]).startServer();

@@ -4,6 +4,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/*
+ * this is a slave manager for master machine.
+ */
 public class SlaveManager {
   private String host;
 
@@ -13,7 +16,7 @@ public class SlaveManager {
     this.host = new String(host);
     this.pQueue = new LinkedList<String>();
   }
-  
+
   public String getHost() {
     return this.host;
   }

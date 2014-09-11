@@ -13,5 +13,5 @@ public interface MigratableProcess extends Runnable, Serializable {
   public void migrated();
 
   public long getId();
-  
+
 }

@@ -12,8 +12,9 @@ import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileInputStream;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileOutputStream;
 
 public class ReplaceProcess implements MigratableProcess {
-  /**
-   * 
+  /*
+   * replace a string to another. usage: ReplaceProcess <regexString> <replacementString>
+   * <inputFile> <outputFile>
    */
   private static final long serialVersionUID = 1L;
 

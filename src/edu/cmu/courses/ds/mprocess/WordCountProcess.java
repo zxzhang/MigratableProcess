@@ -11,6 +11,10 @@ import edu.cmu.courses.ds.launchingProcesses.ProcessManager;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileInputStream;
 import edu.cmu.courses.ds.transactionalFileStream.TransactionalFileOutputStream;
 
+/*
+ * word cound a file.
+ * usage: WordCountProcess <inputFile> <outputFile>
+ */
 public class WordCountProcess implements MigratableProcess {
   /**
    * 
